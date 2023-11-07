@@ -1,5 +1,4 @@
 export function formatDate(inputDate: string): string {
-  console.log(inputDate);
   const options: Intl.DateTimeFormatOptions = {
     weekday: "short",
     month: "short",
