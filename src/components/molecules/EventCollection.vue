@@ -1,12 +1,14 @@
 <template>
   <div>
-    <!-- <button @click="getData">Get Data</button> -->
     <div>
-      <div v-if="responseData" class="event-card__container">
-        <div v-for="(events, date) in groupedEvents" :key="date">
-          <h2>{{ date }}</h2>
-          <p>{{ events }}</p>
-          <EventComponent :event="events"></EventComponent>
+      <div class="event-card__container">
+        <div v-for="(events, date) in store.groupedEvents" :key="date">
+          <div class="event-card__date" ref="headline">
+            {{ formatDate(date) }}
+          </div>
+          <div class="event-card__wrapper">
+            <EventComponent :events="events"></EventComponent>
+          </div>
         </div>
       </div>
     </div>
@@ -15,49 +17,39 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { fetchData } from "@/services/useApi";
 import { Event } from "../../types/types";
 import EventComponent from "@/components/molecules/EventComponent.vue";
+import { useEventsStore } from "@/stores/events";
 
-const responseData = ref<Event[]>([]);
+const store = useEventsStore();
+const inputValue = ref("");
 
-const groupedEvents = ref<Record<string, Event[]>>({});
+const filterEvents = async () => {
+  await store.fetchEvents(inputValue.value);
+};
 
-onMounted(async () => {
-  const data = await fetchData();
+const formatDate = (inputDate: string): string => {
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  };
 
-  const groupedEventsData: Record<string, Event[]> = data.reduce(
-    (acc: Record<string, Event[]>, event: Event) => {
-      const date = new Date(event.date).toLocaleDateString();
+  const dateParts: string[] = inputDate.split(".");
+  const year: number = parseInt(dateParts[2], 10);
+  const month: number = parseInt(dateParts[1], 10) - 1;
+  const day: number = parseInt(dateParts[0], 10);
 
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-
-      acc[date].push(event);
-
-      return acc;
-    },
-    {}
+  const formattedDate: string = new Date(year, month, day).toLocaleDateString(
+    "en-US",
+    options
   );
 
-  console.log(typeof groupedEvents.value);
+  return formattedDate.toUpperCase().replace(/,/g, "");
+};
 
-  const flattenedEvents: Event[] = Object.values(groupedEvents).reduce(
-    (acc, events) => {
-      return acc.concat(events);
-    },
-    []
-  );
-
-  flattenedEvents.sort((a, b) => {
-    const dateA = new Date(a.date).getTime();
-    const dateB = new Date(b.date).getTime();
-    return dateA - dateB;
-  });
-
-  groupedEvents.value = groupedEventsData;
-});
+onMounted(filterEvents);
 </script>
 
 <style lang="scss">
