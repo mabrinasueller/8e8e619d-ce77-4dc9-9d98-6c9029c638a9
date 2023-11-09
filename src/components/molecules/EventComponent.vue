@@ -79,10 +79,11 @@
 
 <script setup lang="ts">
 import { defineProps } from "vue";
+import { Event } from "@/types/types";
 import { formatDateToLocale } from "@/utils/dateUtils";
 import { addEvent } from "@/utils/eventUtils";
 
 const props = defineProps({
-  events: Array,
+  events: Array as () => Event[],
 });
 </script>
