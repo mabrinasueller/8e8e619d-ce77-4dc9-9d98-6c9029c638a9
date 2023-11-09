@@ -11,23 +11,14 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useEventsStore } from "@/stores/events";
+import { filterEvents } from "@/utils/eventUtils";
 
 const inputValue = ref("Search");
-const store = useEventsStore();
 
 const handleInput = (event: any) => {
   inputValue.value = event.target.value;
 
   filterEvents(inputValue.value);
-};
-
-const filterEvents = async (inputValue: string) => {
-  try {
-    await store.fetchEvents(inputValue);
-  } catch (error) {
-    console.error("Error filtering events:", error);
-  }
 };
 </script>
 

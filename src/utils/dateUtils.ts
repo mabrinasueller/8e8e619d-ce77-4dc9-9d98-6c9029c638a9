@@ -26,3 +26,18 @@ export function formatDate(inputDate: string): string {
 
   return formattedDate.toUpperCase().replace(/,/g, "");
 }
+
+export const formatDateToLocale = (dateTime: string): string => {
+  const date = new Date(dateTime);
+  const formattedDate = date.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+  const formattedTime = date.toLocaleTimeString("de-DE", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  return `${formattedDate}, ${formattedTime}`;
+};

@@ -10,22 +10,21 @@
         <div v-if="event.title">{{ event.title }}</div>
       </div>
     </div>
-    <div v-if="!imageError" class="event-card__image-wrapper">
+    <div class="event-card__image-wrapper">
       <img
         :src="event.flyerFront"
         alt="Event Flyer"
-        @error="handleImageError"
         class="event-card__image"
         loading="lazy"
       />
     </div>
-    <div v-if="imageError">
+    <!-- <div v-if="imageError">
       <img
         src="../../assets/event-placeholder-image.png"
         alt="Event flyer placeholder"
         class="event-card__avatar"
       />
-    </div>
+    </div> -->
     <div class="event-card__info">
       <a :href="event.venue.direction" target="_blank">
         <div class="event-card__location">
@@ -54,10 +53,10 @@
       </a>
       <div class="event-card__time">
         <div v-if="event.startTime">
-          <strong>Starts:</strong> {{ formatDateTime(event.startTime) }}
+          <strong>Starts:</strong> {{ formatDateToLocale(event.startTime) }}
         </div>
         <div v-if="event.endTime">
-          <strong>Ends:</strong> {{ formatDateTime(event.endTime) }}
+          <strong>Ends:</strong> {{ formatDateToLocale(event.endTime) }}
         </div>
       </div>
       <div class="event-card__add" @click="addEvent(event._id, event.title)">
@@ -79,49 +78,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps } from "vue";
-import { useEventsStore } from "@/stores/events";
-
-const store = useEventsStore();
-let imageError = ref(false);
+import { defineProps } from "vue";
+import { formatDateToLocale } from "@/utils/dateUtils";
+import { addEvent } from "@/utils/eventUtils";
 
 const props = defineProps({
   events: Array,
 });
-
-const addEvent = (id: string, title: string) => {
-  store.cartItemCount += 1;
-  store.cartEvents.push(id);
-  store.cartTitles.push(title);
-
-  updateEvents();
-};
-
-const updateEvents = async () => {
-  const eventsToRemove = store.cartEvents;
-  try {
-    for (const date in store.groupedEvents) {
-      store.groupedEvents[date] = store.groupedEvents[date].filter(
-        (event) => !eventsToRemove.includes(event._id)
-      );
-    }
-  } catch (error) {
-    console.log("error", error);
-  }
-};
-
-const formatDateTime = (dateTime: string): string => {
-  const date = new Date(dateTime);
-  const formattedDate = date.toLocaleDateString("de-DE", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-  const formattedTime = date.toLocaleTimeString("de-DE", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
-  return `${formattedDate}, ${formattedTime}`;
-};
 </script>
